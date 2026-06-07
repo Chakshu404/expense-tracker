@@ -11,8 +11,7 @@ import java.util.*;
 public class GeminiService {
 
     // 🔑 Aapki real API key yahan perfectly configured hai
-    private final String API_KEY = "AQ.Ab8RN6KvuIkipLKmOWqyy5Cwjectwx2drfh2mZ287cU3eyl1yA"; 
-
+    private final String API_KEY = "YOUR_API_KEY";
     private final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
 
     public ExtractedBillDTO analyzeReceipt(byte[] imageBytes, String contentType) {
