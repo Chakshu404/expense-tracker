@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vesta AI - Smart Expense Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-brain-circuit"></i>
+                </div>
+                <h2>Vesta <span>AI</span></h2>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="scanner">
+                    <i class="fa-solid fa-expand"></i>
+                    <span>AI Scanner</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="budgets">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Budgets & Alerts</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="subscriptions">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Subscriptions</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="split">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Split Bills</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="reports">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Export Reports</span>
+                </a>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-avatar">
+                    <span>JD</span>
+                </div>
+                <div class="profile-info">
+                    <h4>John Doe</h4>
+                    <p>Premium User</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="page-subtitle">Welcome back! Here's your financial overview.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="quick-scanner-btn" onclick="switchTab('scanner')">
+                        <i class="fa-solid fa-bolt"></i> Scan Receipt
+                    </div>
+                    <div class="notification-bell" id="bell-icon" onclick="toggleAlertsDropdown()">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge hidden" id="notification-count">0</span>
+                        
+                        <!-- Notification Dropdown -->
+                        <div class="notifications-dropdown hidden" id="notifications-dropdown">
+                            <div class="dropdown-header">
+                                <h3>Alerts & Notifications</h3>
+                                <button onclick="clearAllNotifications(event)">Clear all</button>
+                            </div>
+                            <div class="dropdown-list" id="dropdown-notifications-list">
+                                <div class="empty-state">No new alerts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Alerts Banner Area (Soft & Hard alerts) -->
+            <div class="alert-banners-container" id="alert-banners-container">
+                <!-- Programmatically populated warnings -->
+            </div>
+
+            <!-- Tab Content: Dashboard -->
+            <section id="tab-dashboard" class="tab-panel active">
+                <!-- Stat Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span>Total Spent (Month)</span>
+                            <div class="icon-box purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                        </div>
+                        <h2 id="total-spent-val">₹0.00</h2>
+                        <span class="trend-indicator text-success" id="spent-vs-last">
+                            <i class="fa-solid fa-arrow-down-long"></i> MoM tracking enabled
+                        </span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span>Active Budgets</span>
+                            <div class="icon-box blue"><i class="fa-solid fa-wallet"></i></div>
+                        </div>
+                        <h2 id="active-budgets-val">0/5</h2>
+                        <div class="progress-bar-small">
+                            <div class="progress" id="budget-overall-progress" style="width: 0%"></div>
+                        </div>
+                        <span class="trend-indicator" id="overall-budget-text">0% of monthly budget</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span>Upcoming Bills</span>
+                            <div class="icon-box yellow"><i class="fa-solid fa-calendar-check"></i></div>
+                        </div>
+                        <h2 id="upcoming-bills-val">0</h2>
+                        <span class="trend-indicator text-warning" id="upcoming-bills-text">
+                            Next due in 2 days
+                        </span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span>Shared Dues Balance</span>
+                            <div class="icon-box green"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        </div>
+                        <h2 id="net-dues-val">₹0.00</h2>
+                        <span class="trend-indicator text-success" id="net-dues-text">
+                            You are owed ₹0
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Lower Section Grid -->
+                <div class="dashboard-grid">
+                    <!-- Left: Recent Expenses -->
+                    <div class="dashboard-card expense-list-card">
+                        <div class="card-header">
+                            <h3>Recent Transactions</h3>
+                            <button class="btn btn-outline" onclick="openAddManualModal()">+ Add Manual</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Merchant</th>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Tax</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-expenses-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Analytics Preview -->
+                    <div class="dashboard-card analytics-card">
+                        <div class="card-header">
+                            <h3>Category Breakdown</h3>
+                            <span class="details-link" onclick="switchTab('budgets')">Manage Budgets</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="categoryChartDashboard"></canvas>
+                        </div>
+                        <div class="month-comparison-container" id="comparison-analysis-box">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: AI Scanner -->
+            <section id="tab-scanner" class="tab-panel">
+                <div class="scanner-grid">
+                    <!-- Left: Upload receipt -->
+                    <div class="dashboard-card upload-section">
+                        <div class="card-header">
+                            <h3>Scan New Receipt</h3>
+                        </div>
+                        <div class="upload-zone" id="upload-zone">
+                            <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+                            <h4>Drag & Drop Receipt Image Here</h4>
+                            <p>Supports PNG, JPG, JPEG up to 5MB</p>
+                            <span class="browse-btn">Browse File</span>
+                            <input type="file" id="receipt-file-input" accept="image/*" class="hidden-file-input">
+                        </div>
+
+                        <!-- Scan Animation Box -->
+                        <div class="scanner-loading-box hidden" id="scanner-loading-box">
+                            <div class="receipt-preview-container">
+                                <img id="receipt-preview-img" src="" alt="Receipt Preview">
+                                <div class="laser-scanner"></div>
+                            </div>
+                            <div class="scanner-progress-info">
+                                <h4 id="scanner-status-text">Gemini AI Client is booting...</h4>
+                                <div class="progress-bar-small">
+                                    <div class="progress pulsing" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preset-receipts">
+                            <p>Don't have a receipt? Try a sample receipt:</p>
+                            <div class="preset-buttons">
+                                <button onclick="simulateScan('grocery')">🛒 Grocery Store (₹2,450)</button>
+                                <button onclick="simulateScan('wifi')">📶 Broadband Net (₹999)</button>
+                                <button onclick="simulateScan('restaurant')">🍕 Pizza Party (₹1,580)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Gemini AI Output & Verification -->
+                    <div class="dashboard-card verification-section">
+                        <div class="card-header">
+                            <h3>Intelligent AI Extraction Log</h3>
+                            <span class="ai-badge"><i class="fa-solid fa-robot"></i> Gemini 1.5 Flash</span>
+                        </div>
+                        
+                        <!-- AI Console logs -->
+                        <div class="console-box" id="scanner-console">
+                            <div class="console-line text-muted">[System] Ready. Upload an image to trigger GenAI parser...</div>
+                        </div>
+
+                        <div class="extracted-details-form hidden" id="extracted-form">
+                            <div class="form-title">
+                                <h3>Verify Extracted Data</h3>
+                                <p>Double-check Gemini's parsing before saving</p>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Merchant Name</label>
+                                    <input type="text" id="ext-merchant" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Amount (INR)</label>
+                                    <input type="number" step="0.01" id="ext-amount" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tax (INR)</label>
+                                    <input type="number" step="0.01" id="ext-tax" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Billing Date</label>
+                                    <input type="date" id="ext-date" class="form-control">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Smart Category (Gemini Decided)</label>
+                                    <select id="ext-category" class="form-control">
+                                        <option value="Food">Food</option>
+                                        <option value="Travel">Travel</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Utilities">Utilities</option>
+                                        <option value="Medical">Medical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn-secondary" onclick="resetScanner()">Discard</button>
+                                <button class="btn btn-primary" onclick="saveExtractedExpense()">Approve & Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Budgets & Alerts -->
+            <section id="tab-budgets" class="tab-panel">
+                <div class="budgets-layout">
+                    <!-- Left: Budget configuration -->
+                    <div class="dashboard-card flex-2">
+                        <div class="card-header">
+                            <h3>Monthly Budgets (Alert Logic Layer)</h3>
+                            <p class="section-desc">Set limits for categories. System triggers warnings at 85% and blocks at 100%.</p>
+                        </div>
+                        <div class="budgets-list-container" id="budgets-list-container">
+                            <!-- Dynamic budget progress rows -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Update Budget limits -->
+                    <div class="dashboard-card flex-1">
+                        <div class="card-header">
+                            <h3>Configure Category Limits</h3>
+                        </div>
+                        <div class="budget-form">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="budget-category" class="form-control">
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Medical">Medical</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Limit (INR)</label>
+                                <input type="number" id="budget-limit-val" placeholder="e.g. 5000" class="form-control">
+                            </div>
+                            <button class="btn btn-primary full-width" onclick="saveBudgetLimit()">Update Limit</button>
+                        </div>
+
+                        <!-- Budget rules explainer -->
+                        <div class="info-card-plain">
+                            <h4><i class="fa-solid fa-circle-info text-info"></i> Alert Logic Rules:</h4>
+                            <ul>
+                                <li><strong>Soft Alert (85%):</strong> Warning banner + notification triggers when category spending crosses 85% of budget.</li>
+                                <li><strong>Hard Alert (100%):</strong> Red critical badge and "Exceeded" warnings will show immediately upon crossing the cap limit.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Subscriptions & Reminders -->
+            <section id="tab-subscriptions" class="tab-panel">
+                <div class="reminder-layout">
+                    <div class="dashboard-card flex-2">
+                        <div class="card-header">
+                            <h3>Active Recurring Subscriptions</h3>
+                            <button class="btn btn-outline" onclick="openAddReminderModal()">+ Add Subscription</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Service Name</th>
+                                        <th>Category</th>
+                                        <th>Monthly Cost</th>
+                                        <th>Next Due Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recurring-bills-tbody">
+                                    <!-- Dynamic Subscriptions list -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card flex-1">
+                        <div class="card-header">
+                            <h3>Automatic Reminder Engine</h3>
+                        </div>
+                        <div class="engine-status">
+                            <div class="status-indicator active">
+                                <div class="pulse-dot"></div>
+                                <span>Reminder Daemon Running</span>
+                            </div>
+                            <p>Reminders scan upcoming payments hourly and alert the user <strong>2 days</strong> before billing.</p>
+                        </div>
+                        <div class="upcoming-alert-box" id="upcoming-reminders-box">
+                            <!-- Populated with elements -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Split Expenses -->
+            <section id="tab-split" class="tab-panel">
+                <div class="split-grid">
+                    <!-- Left Column: Balances and Add Transactions -->
+                    <div class="flex-column gap-20 flex-1">
+                        <!-- Group Summary -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Group Members</h3>
+                                <button class="btn btn-text" onclick="openAddFriendModal()">+ Add Friend</button>
+                            </div>
+                            <div class="friends-list-container" id="friends-list-container">
+                                <!-- Dynamic Friends List -->
+                            </div>
+                        </div>
+
+                        <!-- Add Split Expense Form -->
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Split a New Bill</h3>
+                            </div>
+                            <div class="split-bill-form">
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" id="split-desc" placeholder="e.g. Dinner party, Electricity bill" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Total Amount (INR)</label>
+                                    <input type="number" id="split-amount" placeholder="0.00" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Who Paid?</label>
+                                    <select id="split-payer" class="form-control">
+                                        <option value="You">You (John Doe)</option>
+                                        <!-- Friends populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Split Method</label>
+                                    <select id="split-method" class="form-control">
+                                        <option value="equally">Split Equally Among All</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary full-width" onclick="submitSplitBill()">Split Expense</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Balance Ledger and Settle Up -->
+                    <div class="dashboard-card flex-1">
+                        <div class="card-header">
+                            <h3>Settlement Dues Ledger</h3>
+                            <p class="section-desc">Tracks net balances (who owes who) to avoid multiple micro-transactions.</p>
+                        </div>
+                        <div class="ledger-container" id="split-ledger-list">
+                            <!-- Dynamic balance splits -->
+                        </div>
+                        
+                        <div class="card-header margin-top-30">
+                            <h3>Split History</h3>
+                        </div>
+                        <div class="split-history-list" id="split-history-list">
+                            <!-- Split log items -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Export Reports -->
+            <section id="tab-reports" class="tab-panel">
+                <div class="reports-layout">
+                    <div class="dashboard-card main-reports-card">
+                        <div class="card-header">
+                            <h3>Monthly Expense Report Generator</h3>
+                            <p class="section-desc">Export your tax-compliant expenses and receipts summary for business submissions or budgeting logs.</p>
+                        </div>
+
+                        <div class="filter-controls">
+                            <div class="form-group">
+                                <label>Month</label>
+                                <select id="report-month" class="form-control">
+                                    <option value="current">Current Month (June 2026)</option>
+                                    <option value="previous">Previous Month (May 2026)</option>
+                                    <option value="all">All-time Log</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="report-category" class="form-control">
+                                    <option value="all">All Categories</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Medical">Medical</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="reports-actions">
+                            <button class="btn btn-primary" onclick="exportData('csv')">
+                                <i class="fa-solid fa-file-csv"></i> Download Excel (.xlsx/csv)
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportData('pdf')">
+                                <i class="fa-solid fa-file-pdf"></i> Generate PDF Statement
+                            </button>
+                        </div>
+
+                        <div class="report-preview-box">
+                            <h4>Report Preview (Ready for export)</h4>
+                            <div class="table-container preview-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Merchant</th>
+                                            <th>Date</th>
+                                            <th>Category</th>
+                                            <th>Amount (₹)</th>
+                                            <th>Tax (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-preview-tbody">
+                                        <!-- Populated matches -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Manual Expense Modal -->
+    <div class="modal hidden" id="manual-expense-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Expense Manually</h3>
+                <span class="close-btn" onclick="closeModal('manual-expense-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Merchant Name</label>
+                    <input type="text" id="manual-merchant" class="form-control" placeholder="e.g. Amazon">
+                </div>
+                <div class="form-group">
+                    <label>Amount (INR)</label>
+                    <input type="number" step="0.01" id="manual-amount" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Tax (INR)</label>
+                    <input type="number" step="0.01" id="manual-tax" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="manual-date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="manual-category" class="form-control">
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Medical">Medical</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary full-width" onclick="saveManualExpense()">Save Expense</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Friend Modal -->
+    <div class="modal hidden" id="friend-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Friend to Group</h3>
+                <span class="close-btn" onclick="closeModal('friend-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="friend-name" class="form-control" placeholder="e.g. Rahul Sharma">
+                </div>
+                <button class="btn btn-primary full-width" onclick="addNewFriend()">Add Member</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Subscription Modal -->
+    <div class="modal hidden" id="subscription-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Recurring Subscription</h3>
+                <span class="close-btn" onclick="closeModal('subscription-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Service Name</label>
+                    <input type="text" id="sub-name" class="form-control" placeholder="e.g. Netflix Premium">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Cost (INR)</label>
+                    <input type="number" id="sub-cost" class="form-control" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="sub-category" class="form-control">
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Rent">Rent & Living</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Next Due Date</label>
+                    <input type="date" id="sub-due-date" class="form-control">
+                </div>
+                <button class="btn btn-primary full-width" onclick="saveSubscription()">Save Subscription</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
